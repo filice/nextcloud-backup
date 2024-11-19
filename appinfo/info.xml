@@ -1,15 +1,24 @@
-<info>
-  <id>backupplugin</id>
-  <name>Backup Plugin</name>
-  <summary>Backup di file e database in cartelle specifiche.</summary>
-  <description>Questo plugin consente di eseguire il backup dei file e del database di Nextcloud in cartelle definite dall'amministratore.</description>
-  <version>1.0.0</version>
-  <licence>AGPL</licence>
-  <author>Il Tuo Nome</author>
-  <namespace>BackupPlugin</namespace>
-  <category>tools</category>
-  <dependencies>
-    <nextcloud min-version="30" max-version="30.0.2" />
-  </dependencies>
-  <ocsid>backupplugin</ocsid>
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>nextcloud_backup</id>
+    <name>Nextcloud Backup Plugin</name>
+    <summary>Backup dei file e del database di Nextcloud.</summary>
+    <description><![CDATA[Questo plugin consente di eseguire il backup dei file e del database di Nextcloud in cartelle definite dall'amministratore.]]></description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author mail="albertofilice@gmail.com" >Alberto Filice</author>
+    <namespace>NextcloudBackup</namespace>
+    <category>tools</category>
+    <bugs>https://github.com/filice/nextcloud-backup</bugs>
+    <dependencies>
+        <nextcloud min-version="23" max-version="30"/>
+        <php min-version="7.4" />
+    </dependencies>
+  <settings>
+    <admin>OCA\NextcloudBackup\AppInfo\Settings</admin>
+  </settings>  
+  <background-jobs>
+      <job>OCA\NextcloudBackup\BackgroundJobs\BackupJob</job>
+  </background-jobs>
 </info>

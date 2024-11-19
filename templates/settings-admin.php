@@ -1,6 +1,6 @@
-<div class="section" id="backupplugin-settings">
+<div class="section" id="nextcloud_backup-settings">
     <h2>Impostazioni Backup Plugin</h2>
-    <form id="backupplugin-settings-form">
+    <form id="nextcloud_backup-settings-form">
         <label for="file-backup-folder">Cartella di Backup dei File:</label>
         <input type="text" id="file-backup-folder" name="file_backup_folder" value="<?php p($_['file_backup_folder']); ?>" />
 
