@@ -1,0 +1,15 @@
+<info>
+  <id>backupplugin</id>
+  <name>Backup Plugin</name>
+  <summary>Backup di file e database in cartelle specifiche.</summary>
+  <description>Questo plugin consente di eseguire il backup dei file e del database di Nextcloud in cartelle definite dall'amministratore.</description>
+  <version>1.0.0</version>
+  <licence>AGPL</licence>
+  <author>Il Tuo Nome</author>
+  <namespace>BackupPlugin</namespace>
+  <category>tools</category>
+  <dependencies>
+    <nextcloud min-version="30" max-version="30.0.2" />
+  </dependencies>
+  <ocsid>backupplugin</ocsid>
+</info>

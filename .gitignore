@@ -1,0 +1,7 @@
+.idea
+*.iml
+/vendor/
+/build/
+node_modules/
+/.php-cs-fixer.cache
+js/*hot-update.*
