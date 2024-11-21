@@ -7,6 +7,7 @@ use OCA\NextcloudBackup\Service\BackupService;
 use OCA\NextcloudBackup\BackgroundJobs\BackupJob;
 use OCP\AppFramework\App;
 use OCP\IConfig;
+use OCP\IRequest;
 use OCP\Util;
 use function OCP\Log\logger;
 
@@ -15,7 +16,7 @@ class Application extends App {
         parent::__construct('nextcloud_backup', $urlParams);
 
         $container = $this->getContainer();
-        $config = $container->get(IConfig::class); // Usa `get` invece di `query`
+        $config = $container->get(IConfig::class); // Ottieni `IConfig` dal contenitore
 
         // Registra servizi principali
         $this->registerServices($container, $config);
@@ -48,12 +49,20 @@ class Application extends App {
     private function registerServices($container, IConfig $config) {
         $container->registerService(BackupService::class, function($c) use ($config) {
             // Determina dinamicamente il percorso root di Nextcloud
-            $nextcloudRoot = dirname($_SERVER['SCRIPT_FILENAME'], 2);
+            $nextcloudRoot = '/var/www/html';
+            
             logger('nextcloud_backup')->info('Percorso root calcolato: ' . $nextcloudRoot);
 
             return new BackupService(
                 $config,
                 $nextcloudRoot
+            );
+        });
+
+        $container->registerService(BackupJob::class, function($c) {
+            return new BackupJob(
+                $c->get(BackupService::class),
+                $c->get(IConfig::class)
             );
         });
     }
@@ -62,8 +71,8 @@ class Application extends App {
         $container->registerService(BackupController::class, function($c) {
             return new BackupController(
                 $c->getAppName(),
-                $c->get(IConfig::class)->getServer()->getRequest(), // Usa `get` per IConfig
-                $c->get(BackupService::class) // Usa `get` per BackupService
+                $c->get(IRequest::class), // Ottieni `IRequest` dal contenitore
+                $c->get(BackupService::class) // Ottieni `BackupService` dal contenitore
             );
         });
     }

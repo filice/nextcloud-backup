@@ -8,6 +8,7 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use function OCP\Log\logger;
 
 #[NoAdminRequired]
 #[NoCSRFRequired]
@@ -35,7 +36,7 @@ class BackupController extends Controller {
             ]);
         } catch (\Exception $e) {
             // Log dell'errore e risposta
-            $this->backupService->log('error', $e->getMessage());;
+            logger('nextcloud_backup')->error($e->getMessage());
             return new DataResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
