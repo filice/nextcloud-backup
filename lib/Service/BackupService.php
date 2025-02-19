@@ -375,7 +375,6 @@ class BackupService
             $quotedTable = $this->quoteIdentifier($table, $dbType);
             $data .= "\n-- Data for table $quotedTable\n";
             
-            // Use cursor to handle large amounts of data
             $stmt = $pdo->query("SELECT * FROM $quotedTable");
             
             while ($row = $stmt->fetch()) {
@@ -383,6 +382,14 @@ class BackupService
                 $values = array_map(function($value) use ($pdo) {
                     if ($value === null) {
                         return 'NULL';
+                    }
+                    // Gestione dei tipi resource/BLOB
+                    if (is_resource($value)) {
+                        return 'NULL'; // oppure gestisci il BLOB in modo appropriato
+                    }
+                    // Converti in stringa se necessario
+                    if (!is_string($value)) {
+                        $value = (string)$value;
                     }
                     return $pdo->quote($value);
                 }, array_values($row));
@@ -498,6 +505,9 @@ class BackupService
         if (!is_writable($fileBackupFolder) || !is_writable($dbBackupFolder)) {
             throw new Exception('Backup paths are not writable');
         }
+        if (!is_writable($dbBackupFolder)) {
+            throw new Exception('La cartella di backup del database non è scrivibile: ' . $dbBackupFolder);
+        }        
     }
 
     public function performBackup(): array
