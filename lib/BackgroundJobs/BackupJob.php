@@ -8,24 +8,25 @@ use OCP\IConfig;
 use function OCP\Log\logger;
 
 class BackupJob extends TimedJob {
-    private $backupService;
-    private $config;
+    private BackupService $backupService;
+    private IConfig $config;
 
     public function __construct(BackupService $backupService, IConfig $config) {
+        parent::__construct();
+        
         $this->backupService = $backupService;
         $this->config = $config;
 
-        // Imposta l'intervallo dinamico basato sulla configurazione
-        $backupInterval = $this->config->getAppValue('nextcloud_backup', 'backup_interval', '24'); // Default: 24 ore
-        $this->setInterval((int)$backupInterval * 3600); // Converti ore in secondi
+        $backupInterval = (int)$this->config->getAppValue('nextcloud_backup', 'backup_interval', '24');
+        $this->setInterval($backupInterval * 3600);
     }
 
-    protected function run($argument) {
+    protected function run($argument): void {
         try {
             $this->backupService->performBackup();
-            logger('nextcloud_backup')->info('Backup completato con successo dal cronjob.');
+            logger('nextcloud_backup')->info('Backup pianificato completato con successo');
         } catch (\Exception $e) {
-            logger('nextcloud_backup')->error('Errore durante l\'esecuzione del cronjob di backup: ' . $e->getMessage());
+            logger('nextcloud_backup')->error('Errore nel backup pianificato: ' . $e->getMessage());
         }
     }
 }

@@ -7,11 +7,12 @@ use OCP\IRequest;
 use OCP\IConfig;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http;
 
 class SettingsController extends Controller {
-    private $config;
+    private IConfig $config;
 
-    public function __construct($AppName, IRequest $request, IConfig $config) {
+    public function __construct(string $AppName, IRequest $request, IConfig $config) {
         parent::__construct($AppName, $request);
         $this->config = $config;
     }
@@ -20,32 +21,49 @@ class SettingsController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function index() {
-        $fileBackupFolder = $this->config->getAppValue('nextcloud_backup', 'file_backup_folder', '/backup/nexcloud');
-        $dbBackupFolder = $this->config->getAppValue('nextcloud_backup', 'db_backup_folder', '/backup/nexcloud-db');
-        $backupInterval = $this->config->getAppValue('nextcloud_backup', 'backup_interval', '24'); // Default: 24 ore
+    public function index(): TemplateResponse {
+        $params = [
+            'file_backup_folder' => $this->config->getAppValue('nextcloud_backup', 'file_backup_folder', '/backup/nextcloud'),
+            'db_backup_folder' => $this->config->getAppValue('nextcloud_backup', 'db_backup_folder', '/backup/nextcloud-db'),
+            'backup_interval' => $this->config->getAppValue('nextcloud_backup', 'backup_interval', '24'),
+        ];
 
-        return new TemplateResponse('nextcloud_backup', 'settings-admin', [
-            'file_backup_folder' => $fileBackupFolder,
-            'db_backup_folder' => $dbBackupFolder,
-            'backup_interval' => $backupInterval,
-        ]);
+        return new TemplateResponse('nextcloud_backup', 'settings-admin', $params);
     }
 
     /**
      * @NoAdminRequired
-     * @NoCSRFRequired
      */
-    public function save($fileBackupFolder, $dbBackupFolder) {
-        $this->config->setAppValue('nextcloud_backup', 'file_backup_folder', $fileBackupFolder);
-        $this->config->setAppValue('nextcloud_backup', 'db_backup_folder', $dbBackupFolder);
+    public function save(string $fileBackupFolder, string $dbBackupFolder, string $backupInterval): DataResponse {
+        try {
+            // Validazione
+            if (!$this->validatePaths($fileBackupFolder, $dbBackupFolder)) {
+                throw new \Exception('Percorsi non validi');
+            }
 
-        return new DataResponse(['status' => 'success']);
+            if (!$this->validateInterval($backupInterval)) {
+                throw new \Exception('Intervallo non valido');
+            }
+
+            // Salvataggio
+            $this->config->setAppValue('nextcloud_backup', 'file_backup_folder', $fileBackupFolder);
+            $this->config->setAppValue('nextcloud_backup', 'db_backup_folder', $dbBackupFolder);
+            $this->config->setAppValue('nextcloud_backup', 'backup_interval', $backupInterval);
+
+            return new DataResponse(['status' => 'success']);
+        } catch (\Exception $e) {
+            return new DataResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_BAD_REQUEST
+            );
+        }
     }
 
-    public function saveInterval($interval) {
-        $this->config->setAppValue('nextcloud_backup', 'backup_interval', $interval);
-        return ['status' => 'success'];
+    private function validatePaths(string $fileBackupFolder, string $dbBackupFolder): bool {
+        return !empty($fileBackupFolder) && !empty($dbBackupFolder);
     }
-    
+
+    private function validateInterval(string $interval): bool {
+        return is_numeric($interval) && $interval > 0;
+    }
 }

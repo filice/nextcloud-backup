@@ -36,8 +36,16 @@ class BackupController extends Controller {
             ]);
         } catch (\Exception $e) {
             // Log dell'errore e risposta
-            logger('nextcloud_backup')->error($e->getMessage());
+            logger('nextcloud_backup')->error('Errore backup: ' . $e->getMessage());
             return new DataResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function getStatus(): DataResponse {
+        return new DataResponse($this->backupService->getBackupStatus());
     }
 }
