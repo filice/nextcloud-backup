@@ -42,7 +42,7 @@ class BackupService
 
     private function getConfigDir(): string
     {
-        return $this->config->getSystemValue('datadirectory') . '../config';
+        return $this->config->getSystemValue('datadirectory') . '/../config';
     }
 
     public function getBackupStatus(): array
