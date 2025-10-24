@@ -45,16 +45,9 @@ class BackupService
         return $this->config->getSystemValue('datadirectory') . '/../config';
     }
 
-    public function getBackupStatus(): array
+    private function setBackupStatus(string $status): void
     {
-        $status = $this->config->getAppValue('nextcloud_backup', 'backup_status', 'idle');
-        return ['status' => $status];
-    }
-
-    public function setBackupStatus(string $status): void
-    {
-        logger('nextcloud_backup')->info($status);
-        $this->config->setAppValue('nextcloud_backup', 'backup_status', $status);
+        logger('nextcloud_backup')->info('Setting backup status: ' . $status);
     }
 
     public function enableMaintenanceMode()
@@ -79,12 +72,12 @@ class BackupService
 
         if (!is_dir($fileBackupFolder)) {
             if (!mkdir($fileBackupFolder, 0750, true)) {
-                throw new \Exception("Unable to create backup directory: $fileBackupFolder");
+                throw new Exception("Unable to create backup directory: $fileBackupFolder");
             }
         }
 
         if (!is_writable($fileBackupFolder)) {
-            throw new \Exception("Backup directory not writable: $fileBackupFolder");
+            throw new Exception("Backup directory not writable: $fileBackupFolder");
         }
 
         $this->setBackupStatus('running_files');

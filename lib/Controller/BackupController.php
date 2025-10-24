@@ -40,12 +40,4 @@ class BackupController extends Controller {
             return new DataResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-
-    /**
-     * @NoAdminRequired
-     * @NoCSRFRequired
-     */
-    public function getStatus(): DataResponse {
-        return new DataResponse($this->backupService->getBackupStatus());
-    }
 }
